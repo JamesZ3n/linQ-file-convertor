@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 class JsonToXmlConverter
 {
@@ -10,7 +11,7 @@ class JsonToXmlConverter
         Console.WriteLine("Welcome to the JSON to XML converter!");
         string sourceDataDirectory = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName, "sourceData");
         string targetDataDirectory = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName, "targetData");
-        
+
         if (!Directory.Exists(targetDataDirectory))
         {
             Directory.CreateDirectory(targetDataDirectory);
@@ -56,7 +57,11 @@ class JsonToXmlConverter
         try
         {
             string jsonContent = File.ReadAllText(fullPath);
-            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(jsonContent, "Root")!;
+
+            // Étape intermédiaire : recherche spécifique
+            JObject? filteredData = JsonSearch.PerformSearch(jsonContent)!;
+
+            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(filteredData.ToString(), "Root")!;
 
             string xmlFileName = Path.Combine(targetDataDirectory, Path.ChangeExtension(input, ".xml"));
             xmlDoc!.Save(xmlFileName);
