@@ -5,17 +5,24 @@ using Newtonsoft.Json;
 
 class JsonToXmlConverter
 {
-    public static void Main()
+    public static void Convertor()
     {
-        string dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "data");
+        Console.WriteLine("Welcome to the JSON to XML converter!");
+        string sourceDataDirectory = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName, "sourceData");
+        string targetDataDirectory = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.FullName, "targetData");
+        
+        if (!Directory.Exists(targetDataDirectory))
+        {
+            Directory.CreateDirectory(targetDataDirectory);
+        }
 
-        if (!Directory.Exists(dataDirectory))
+        if (!Directory.Exists(sourceDataDirectory))
         {
             Console.WriteLine("The 'data' directory does not exist.");
             return;
         }
 
-        string[] jsonFiles = Directory.GetFiles(dataDirectory, "*.json");
+        string[] jsonFiles = Directory.GetFiles(sourceDataDirectory, "*.json");
 
         if (jsonFiles.Length == 0)
         {
@@ -30,7 +37,7 @@ class JsonToXmlConverter
         }
 
         Console.WriteLine("\nEnter the name of the JSON file to convert:");
-        string input = Console.ReadLine()?.Trim();
+        string input = Console.ReadLine()?.Trim()!;
 
         if (string.IsNullOrWhiteSpace(input))
         {
@@ -38,7 +45,7 @@ class JsonToXmlConverter
             return;
         }
 
-        string fullPath = Path.Combine(dataDirectory, input);
+        string fullPath = Path.Combine(sourceDataDirectory, input);
 
         if (!File.Exists(fullPath))
         {
@@ -49,10 +56,10 @@ class JsonToXmlConverter
         try
         {
             string jsonContent = File.ReadAllText(fullPath);
-            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(jsonContent, "Root");
+            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(jsonContent, "Root")!;
 
-            string xmlFileName = Path.Combine(dataDirectory, Path.ChangeExtension(input, ".xml"));
-            xmlDoc.Save(xmlFileName);
+            string xmlFileName = Path.Combine(targetDataDirectory, Path.ChangeExtension(input, ".xml"));
+            xmlDoc!.Save(xmlFileName);
 
             Console.WriteLine("File successfully converted!");
         }
