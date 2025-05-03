@@ -61,13 +61,16 @@ class JsonToXmlConverter
             // Étape intermédiaire : recherche spécifique
             JObject? searchData = JsonSearch.PerformSearch(jsonContent)!;
 
-            // Étape intermédiaire : recherche spécifique
+            // Étape intermédiaire : filtre spécifique
             JObject? filteredData = FilterJsonData.Filter(searchData.ToString());
 
+            // Étape intermédiaire : groupe spécifique
+            JObject? groupedData = GroupJson.PerformGroup(filteredData.ToString());
+
             //Afficher les résultats de la recherche
-            if (filteredData != null && filteredData.HasValues)
+            if (groupedData != null && groupedData.HasValues)
             {
-                Console.WriteLine(filteredData.ToString());
+                Console.WriteLine(groupedData.ToString());
             }
             else
             {
@@ -76,7 +79,7 @@ class JsonToXmlConverter
             }
 
             
-            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(searchData.ToString(), "Root")!;
+            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(groupedData.ToString(), "Root")!;
 
             string xmlFileName = Path.Combine(targetDataDirectory, Path.ChangeExtension(input, ".xml"));
             xmlDoc!.Save(xmlFileName);
