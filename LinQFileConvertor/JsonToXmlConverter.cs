@@ -19,7 +19,7 @@ class JsonToXmlConverter
 
         if (!Directory.Exists(sourceDataDirectory))
         {
-            Console.WriteLine("The 'data' directory does not exist.");
+            Console.WriteLine(sourceDataDirectory + "The 'data' directory does not exist.");
             return;
         }
 
@@ -59,9 +59,24 @@ class JsonToXmlConverter
             string jsonContent = File.ReadAllText(fullPath);
 
             // Étape intermédiaire : recherche spécifique
-            JObject? filteredData = JsonSearch.PerformSearch(jsonContent)!;
+            JObject? searchData = JsonSearch.PerformSearch(jsonContent)!;
 
-            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(filteredData.ToString(), "Root")!;
+            // Étape intermédiaire : recherche spécifique
+            JObject? filteredData = FilterJsonData.Filter(searchData.ToString());
+
+            //Afficher les résultats de la recherche
+            if (filteredData != null && filteredData.HasValues)
+            {
+                Console.WriteLine(filteredData.ToString());
+            }
+            else
+            {
+                Console.WriteLine("No data found for json.");
+                return;
+            }
+
+            
+            XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(searchData.ToString(), "Root")!;
 
             string xmlFileName = Path.Combine(targetDataDirectory, Path.ChangeExtension(input, ".xml"));
             xmlDoc!.Save(xmlFileName);
