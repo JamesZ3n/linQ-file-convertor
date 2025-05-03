@@ -1,6 +1,6 @@
 {
     "house1": {
-        "rooms": 1,
+        "rooms": 2,
         "windows": 8,
         "garden": true,
         "neighborhood": "quiet residential area",

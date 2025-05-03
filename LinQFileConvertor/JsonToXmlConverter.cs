@@ -78,7 +78,19 @@ class JsonToXmlConverter
                 return;
             }
 
-            
+            // Étape intermédiaire : exclusion des champs
+
+            Console.WriteLine("Do you want to exclude any fields? (yes/no)");
+            string excludeResponse = Console.ReadLine()?.Trim().ToLower()!;
+            if (excludeResponse == "yes")
+            {
+                Console.WriteLine("Enter fields to exclude (comma-separated), for example 'rooms,type':");
+                string? excludeInput = Console.ReadLine();
+                List<string> fieldsToExclude = excludeInput?.Split(',').Select(f => f.Trim()).ToList() ?? new List<string>();
+
+                groupedData = ExcludeFields(groupedData, fieldsToExclude);         
+            }
+
             XmlDocument xmlDoc = JsonConvert.DeserializeXmlNode(groupedData.ToString(), "Root")!;
 
             string xmlFileName = Path.Combine(targetDataDirectory, Path.ChangeExtension(input, ".xml"));
@@ -91,4 +103,21 @@ class JsonToXmlConverter
             Console.WriteLine("An error occurred during conversion: " + ex.Message);
         }
     }
+    private static JObject ExcludeFields(JObject jsonObject, List<string> fieldsToExclude)
+    {
+        foreach (var property in jsonObject.Properties().ToList())
+        {
+            if (fieldsToExclude.Contains(property.Name))
+            {
+                property.Remove();
+            }
+            else if (property.Value is JObject nestedObject)
+            {
+                ExcludeFields(nestedObject, fieldsToExclude);
+            }
+        }
+        return jsonObject;
+    }
 }
+
+
